@@ -1,0 +1,7 @@
+.suggestion-item:hover {
+    background-color: #f0f0f0; /* or any color of your choice */
+    cursor: pointer;
+  }
+.suggestion-item.focused {
+  background-color: #e0e0e0; /* different color for focused item */
+}
