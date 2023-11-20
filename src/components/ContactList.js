@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ContactList.css';
+import { Container, Grid, Input, Button, Icon } from 'semantic-ui-react';
 
-function App() {
+function ContactList() {
   const [contacts, setContacts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [lastSearchTerm, setLastSearchTerm] = useState('');
@@ -20,13 +21,14 @@ function App() {
   }, []);
 
   const handleSearchChange = (event) => {
-    const value = event.target.value;
+    const value = event.target.value.toLowerCase();
     setSearchTerm(value);
 
     if (value.length > 0) {
-      const filteredSuggestions = contacts.filter(contact =>
-        contact.name.toLowerCase().includes(value.toLowerCase())
-      ).slice(0, 5); // Limit the number of suggestions
+      const filteredSuggestions = contacts.filter(contact => {
+        return contact.name.toLowerCase().startsWith(value) ||
+               contact.name.split(" ").some(part => part.toLowerCase().startsWith(value));
+      });
       setSuggestions(filteredSuggestions);
     } else {
       setSuggestions([]);
@@ -35,9 +37,10 @@ function App() {
 
   const performSearch = () => {
     if (searchTerm) {
-      const filtered = contacts.filter(contact =>
-        contact.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const filtered = contacts.filter(contact => {
+        return contact.name.toLowerCase().startsWith(searchTerm) ||
+               contact.name.split(" ").some(part => part.toLowerCase().startsWith(searchTerm));
+      });
       setFilteredContacts(filtered);
       setLastSearchTerm(searchTerm);
       setSuggestions([]); // Clear suggestions on search
@@ -66,21 +69,19 @@ function App() {
       }
     }
   };
-  
+
   const handleMouseEnter = (index) => {
     setFocusedSuggestionIndex(index);
   };
-  
+
   const handleMouseLeave = () => {
     setFocusedSuggestionIndex(-1);
   };
-  
-  
 
   const selectSuggestion = (name) => {
     setSearchTerm(name);
     setLastSearchTerm(name);
-  
+
     const filtered = contacts.filter(contact =>
       contact.name.toLowerCase().includes(name.toLowerCase())
     );
@@ -89,38 +90,48 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <h1>Contacts</h1>
-      <input
-        type="text"
-        placeholder="Search by name..."
-        value={searchTerm}
-        onChange={handleSearchChange}
-        onKeyDown={handleKeyDown}
-      />
-      <button onClick={handleSearchClick}>
-        Search
-      </button>
-      {suggestions.length > 0 && (
-        <ul>
-          {suggestions.map((suggestion, index) => (
-            <li
-              key={suggestion.id}
-              className={`suggestion-item ${index === focusedSuggestionIndex ? 'focused' : ''}`}
-              onClick={() => selectSuggestion(suggestion.name)}
-              onMouseEnter={() => handleMouseEnter(index)}
-              onMouseLeave={handleMouseLeave}
-            >
-              {suggestion.name}
-            </li>
-          ))}
-        </ul>
-      )}
+    <Container>
+      <Grid>
+        <Grid.Row className='searchbar-container'>
+          <Grid.Column width='10' style={{ paddingRight: 0 }}>
+            <div className="input-wrapper">
+                <Input
+                fluid
+                placeholder='Type a name'
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onKeyDown={handleKeyDown}
+                />
+                {suggestions.length > 0 && (
+                <ul className="suggestions-list">
+                    {suggestions.map((suggestion, index) => (
+                    <li
+                        key={suggestion.id}
+                        className={`suggestion-item ${index === focusedSuggestionIndex ? 'focused' : ''}`}
+                        onClick={() => selectSuggestion(suggestion.name)}
+                        onMouseEnter={() => handleMouseEnter(index)}
+                        onMouseLeave={handleMouseLeave}
+                    >
+                        {suggestion.name}
+                    </li>
+                    ))}
+                </ul>
+                )}
+            </div>
+          </Grid.Column>
+          <Grid.Column width='6' style={{ paddingLeft: 0 }}>
+            <Button primary onClick={handleSearchClick}>Search <Icon name="search" style={{ marginLeft: '5px' }} /></Button>
+            
+          </Grid.Column>
+        </Grid.Row>
+      </Grid>
+
       {filteredContacts !== null && (
         <h2>
-          The results of "{lastSearchTerm}": {filteredContacts.length}
+          Results for "{lastSearchTerm}" ({filteredContacts.length} results)
         </h2>
       )}
+
       <ul>
         {(filteredContacts || contacts).map(contact => (
           <li key={contact.id}>
@@ -128,8 +139,8 @@ function App() {
           </li>
         ))}
       </ul>
-    </div>
+    </Container>
   );
 }
 
-export default App;
+export default ContactList;

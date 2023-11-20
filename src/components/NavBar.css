@@ -1,0 +1,7 @@
+.ui.inverted.top.fixed.menu{
+  background-color: #8bd0dd !important;
+}
+
+.ui.menu .item:before {
+  width: 0px !important;
+}

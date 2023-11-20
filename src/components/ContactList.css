@@ -1,7 +1,61 @@
-.suggestion-item:hover {
-    background-color: #f0f0f0; /* or any color of your choice */
-    cursor: pointer;
+.ui.grid > .row.searchbar-container {
+  padding: 61px 60px 32px;
+  background-color: #f0f9fa;
+  margin-top: 5em;
+  border-radius: 10px;
+}
+
+.input-wrapper {
+  position: relative; /* Ensures the input is relative to Grid.Column */
+}
+
+/* search bar - input field */
+.ui.input>input {
+    box-shadow: 0 0 0 1px #e383a8 inset !important;
+    border: none !important;
+    border-radius: 25px 0 0 25px !important;
+    height: 50px;
+}
+
+.ui.input.focus>input, .ui.input>input:focus, .ui.input>input:hover {
+    box-shadow: 0 0 0 2px #e383a8 inset !important;
+}
+
+/* The autocomplete list of contacts */
+.suggestions-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  width: 100%;
+  background-color: white;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  z-index: 1000; /* Ensures the list appears above other content */
+}
+
+.suggestion-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
   }
-.suggestion-item.focused {
-  background-color: #e0e0e0; /* different color for focused item */
+
+.suggestion-item:hover, .suggestion-item.focused {
+  background-color: #f0f9fa;
+}
+
+/* search button */
+.ui.button {
+  font-size: 16px !important;
+  border-radius: 0 25px 25px 0 !important;
+  background-color: #e383a8 !important;
+  height: 50px;
+}
+
+.ui.button:hover {
+  background-color: #8bd0dd !important;
 }
