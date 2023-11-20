@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ContactList.css';
 import { Container, Grid, Input, Button, Icon } from 'semantic-ui-react';
+import ContactListItem from '../ContactListItem/ContactListItem';
 
 function ContactList() {
   const [contacts, setContacts] = useState([]);
@@ -35,6 +36,26 @@ function ContactList() {
     }
   };
 
+  useEffect(() => {
+    // Function to handle clicks outside the search input and suggestions
+    const handleOutsideClick = (event) => {
+      const inputWrapper = document.querySelector(".input-wrapper");
+
+      if (!inputWrapper.contains(event.target)) {
+        setSuggestions([]); // Clear suggestions
+      }
+    };
+
+    // Add event listener to window for clicks
+    window.addEventListener("mousedown", handleOutsideClick);
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
+
+
   const performSearch = () => {
     if (searchTerm) {
       const filtered = contacts.filter(contact => {
@@ -52,6 +73,13 @@ function ContactList() {
 
   const handleSearchClick = () => {
     performSearch();
+  };
+
+  const handleClearClick = () => {
+    setSearchTerm(''); // Clear the input field
+    setFilteredContacts(null); // Clear the search results
+    setLastSearchTerm('');
+    setSuggestions([]);
   };
 
   const handleKeyDown = (event) => {
@@ -121,24 +149,21 @@ function ContactList() {
           </Grid.Column>
           <Grid.Column width='6' style={{ paddingLeft: 0 }}>
             <Button primary onClick={handleSearchClick}>Search <Icon name="search" style={{ marginLeft: '5px' }} /></Button>
-            
+            <Button className='reset-button' onClick={handleClearClick}>Reset <Icon name="close" style={{ marginLeft: '5px' }} /></Button>
           </Grid.Column>
         </Grid.Row>
       </Grid>
 
       {filteredContacts !== null && (
-        <h2>
-          Results for "{lastSearchTerm}" ({filteredContacts.length} results)
+        <h2 className='dotted-underline'>
+          Results for <span style={{ color: '#e383a8' }}>"{lastSearchTerm}"</span> ({filteredContacts.length} results)
         </h2>
       )}
 
-      <ul>
-        {(filteredContacts || contacts).map(contact => (
-          <li key={contact.id}>
-            {contact.name} - {contact.email}
-          </li>
-        ))}
-      </ul>
+      {(filteredContacts || contacts).map(contact => (
+        <ContactListItem key={contact.id} contact={contact} />
+      ))}
+
     </Container>
   );
 }

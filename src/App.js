@@ -1,6 +1,6 @@
 import './App.css';
-import ContactList from './components/ContactList';
-import NavBar from './components/NavBar';
+import ContactList from './components/ContactList/ContactList';
+import NavBar from './components/NavBar/NavBar';
 import 'semantic-ui-css/semantic.min.css';
 import { Container } from 'semantic-ui-react';
 

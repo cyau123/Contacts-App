@@ -2,6 +2,7 @@
   padding: 61px 60px 32px;
   background-color: #f0f9fa;
   margin-top: 5em;
+  margin-bottom: 4em;
   border-radius: 10px;
 }
 
@@ -58,4 +59,22 @@
 
 .ui.button:hover {
   background-color: #8bd0dd !important;
+}
+
+/* reset button */
+.ui.button.reset-button {
+  color: #e383a8ce !important;
+  border: 2px solid #e383a8ce !important;
+  border-radius: 25px 25px 25px 25px !important;
+  background-color: white !important;
+}
+
+.ui.button.reset-button:hover {
+  color: #e383a8 !important;
+  border: 2px solid #e383a8 !important;
+}
+
+.dotted-underline {
+  padding-bottom: 2rem;
+  border-bottom: 3px dotted #8bd0dd; /* Adjust the color and style as needed */
 }
