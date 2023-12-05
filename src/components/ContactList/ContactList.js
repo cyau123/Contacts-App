@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ContactList.css';
-import { Container, Grid, Input, Button, Icon, Dimmer, Loader, GridColumn } from 'semantic-ui-react';
+import { Container, Grid } from 'semantic-ui-react';
 import ContactListItem from '../ContactListItem/ContactListItem';
+import LoadingComponent from '../LoadingComponent/LoadingComponent';
+import Pagination from '../Pagination/Pagination';
+import SearchResultsHeader from '../SearchResultsHeader/SearchResultsHeader';
+import SearchBar from '../SearchBar/SearchBar';
 
 function ContactList() {
   const [isLoading, setIsLoading] = useState(true);
@@ -12,7 +16,6 @@ function ContactList() {
   const [filteredContacts, setFilteredContacts] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [focusedSuggestionIndex, setFocusedSuggestionIndex] = useState(-1);
-
 
   useEffect(() => {
     // Set 1 second delay
@@ -56,12 +59,19 @@ function ContactList() {
   const totalItems = (filteredContacts || contacts).length;
   const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
 
+  /* Scroll to top of the page whenever visits a new page */
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }, [currentPage]);
+
   /* Show a Loader when page is loading */
   if (isLoading) {
     return (
-    <Dimmer active={true} inverted={true}>
-      <Loader content="Loading..." />
-    </Dimmer>)
+      <LoadingComponent content="Loading..." />
+    )
   }
 
   /* Search bar autocomplete - when user start typing in the text input, contacts are filtered and
@@ -81,7 +91,6 @@ function ContactList() {
       setSuggestions([]);
     }
   };
-
 
   /* When user clicks the search button, if there is text in the input,
      filter the contacts, and set FilteredContacts state to the filtered contacts */
@@ -173,79 +182,21 @@ function ContactList() {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  /* Function to return Page Number Buttons dynamically according to the number of search results */
-  const renderPageNumbers = () => {
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(
-        <Button key={i} className="page-number-button" onClick={() => setCurrentPage(i)} disabled={currentPage === i}>
-          {i}
-        </Button>
-      );
-    }
-    return pages;
-  };
-
   return (
     <Container>
       <Grid>
-        <Grid.Row className='searchbar-container'>
-          <Grid.Column mobile={10} tablet={10} computer={10} style={{ paddingRight: 0 }}>
-            <div className="input-wrapper">
-                <Input
-                fluid
-                placeholder='Type a name'
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onKeyDown={handleKeyDown}
-                />
-                {suggestions.length > 0 && (
-                <ul className="suggestions-list">
-                    {suggestions.map((suggestion, index) => (
-                    <li
-                        key={suggestion.id}
-                        className={`suggestion-item ${index === focusedSuggestionIndex ? 'focused' : ''}`}
-                        onClick={() => selectSuggestion(suggestion.name)}
-                        onMouseEnter={() => handleMouseEnter(index)}
-                        onMouseLeave={handleMouseLeave}
-                    >
-                        {suggestion.name}
-                    </li>
-                    ))}
-                </ul>
-                )}
-            </div>
-          </Grid.Column>
-          <Grid.Column mobile={6} tablet={3} computer={3} style={{ paddingLeft: 0 }}>
-            <Button primary onClick={handleSearchClick}>Search <Icon name="search" style={{ marginLeft: '5px' }} /></Button>
-          </Grid.Column>
-          <GridColumn mobile={16} tablet={3} computer={3}>
-            <Button className='reset-button' onClick={handleClearClick}>Reset <Icon name="close" style={{ marginLeft: '5px' }} /></Button>
-          </GridColumn>
-        </Grid.Row>
+        <SearchBar searchTerm={searchTerm} handleSearchChange={handleSearchChange} handleKeyDown={handleKeyDown} suggestions={suggestions} focusedSuggestionIndex={focusedSuggestionIndex} selectSuggestion={selectSuggestion} handleMouseEnter={handleMouseEnter} handleMouseLeave={handleMouseLeave} handleSearchClick={handleSearchClick} handleClearClick={handleClearClick} />
       </Grid>
 
       {filteredContacts !== null && (
-        <h2 className='dotted-underline'>
-          Results for <span style={{ color: '#e383a8' }}>"{lastSearchTerm}"</span> ({filteredContacts.length} results)
-        </h2>
+        <SearchResultsHeader lastSearchTerm={lastSearchTerm} filteredContacts={filteredContacts} />
       )}
 
       {currentContacts.map(contact => (
         <ContactListItem key={contact.id} contact={contact} />
       ))}
       <Grid >
-        <Grid.Row style={{marginTop: "4rem", marginBottom: "5rem"}}>
-          <Grid.Column width={4} textAlign="right">
-            <Button className="prev-button" onClick={handlePreviousPage} disabled={currentPage === 1}>Prev</Button>
-          </Grid.Column>
-          <Grid.Column width={8} textAlign="center">
-            {renderPageNumbers()}
-          </Grid.Column>
-          <Grid.Column width={4} textAlign="left">
-            <Button className="next-button" onClick={handleNextPage} disabled={currentPage === totalPages}>Next</Button>
-          </Grid.Column>
-        </Grid.Row>
+        <Pagination handlePreviousPage={handlePreviousPage} handleNextPage = {handleNextPage} currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage} />
       </Grid>
     </Container>
   );

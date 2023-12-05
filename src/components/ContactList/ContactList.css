@@ -80,37 +80,14 @@
   border-bottom: 3px dotted #8bd0dd; /* Adjust the color and style as needed */
 }
 
-/* page number buttons */
-.ui.button.page-number-button {
-  color: #8bd0dd !important;
-  border: 2px solid #8bd0dd !important;
-  border-radius: 50% !important;
-  height: 50px;
-  width: 50px;
-  padding: 0;
-  background-color: white !important;
-}
-
-.ui.button.page-number-button:hover, .ui.button.prev-button:hover, .ui.button.next-button:hover {
-  color: white !important;
-  background-color: #8bd0dd !important;
-}
-
-/* prev button and next button */
-.ui.button.prev-button {
-  color: #8bd0dd !important;
-  border: 2px solid #8bd0dd !important;
-  border-radius: 25px 0 0 25px !important;
-  background-color: white !important;
-}
-
-.ui.button.next-button {
-  color: #8bd0dd !important;
-  border: 2px solid #8bd0dd !important;
-  background-color: white !important;
-}
-
 @media only screen and (max-width: 767px) {
+  .ui.input>input {
+    border-radius: 25px 25px 25px 25px !important;
+}
+  .ui.button.search-button {
+    margin-top: 15px;
+    border-radius: 25px 25px 25px 25px !important;
+  }
   .ui.button.reset-button {
     margin-top: 15px; /* Adjust as needed */
   }
