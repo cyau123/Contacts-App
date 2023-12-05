@@ -22,7 +22,8 @@ function ContactList() {
     const timer = setTimeout(() => {
       axios.get('https://jsonplaceholder.typicode.com/users')
         .then(response => {
-          setContacts(response.data);
+          const sortedContacts = response.data.sort((a, b) => a.name.localeCompare(b.name));
+          setContacts(sortedContacts);
           setIsLoading(false);
           window.scrollTo(0, 0);
         })
