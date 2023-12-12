@@ -12,5 +12,41 @@
 
 .dotted-underline {
   padding-bottom: 2rem;
-  border-bottom: 3px dotted #8bd0dd; /* Adjust the color and style as needed */
+  border-bottom: 3px dotted #8bd0dd;
 }
+
+/* dropdown */
+.ui.selection.dropdown {
+  color: #777777 !important;
+  border: none !important;
+  min-width: 8em !important;
+  margin-bottom: 2em;
+  border-radius: 20px !important;
+  box-shadow: 0 0 0 1px #8bd0dd inset !important;
+}
+
+.ui.selection.dropdown:hover {
+  box-shadow: 0 0 0 2px #8bd0dd inset !important;
+}
+
+.ui.selection.visible.dropdown>.text:not(.default) {
+  color: #777777 !important;
+}
+
+.ui.selection.active.dropdown .menu {
+  border-color: #8bd0dd;
+  border-radius: 10px !important;
+}
+
+.ui.dropdown .menu>.item {
+  color: #777777 !important;
+}
+
+.ui.dropdown .menu .item:hover {
+  background-color: #8bd0dd !important;
+}
+
+.ui.dropdown .menu .selected.item{
+  background-color: #8bcfddc4 !important;
+}
+

@@ -11,7 +11,7 @@ function App() {
 
   // Function to toggle visibility of the scroll-to-top-button
   const toggleVisibility = () => {
-    if (window.pageYOffset > 300) {
+    if (window.scrollY > 300) {
       setIsVisible(true);
     } else {
       setIsVisible(false);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ContactList.css';
-import { Container, Grid } from 'semantic-ui-react';
+import { Container, Dropdown, Grid } from 'semantic-ui-react';
 import ContactListItem from '../ContactListItem/ContactListItem';
 import LoadingComponent from '../LoadingComponent/LoadingComponent';
 import Pagination from '../Pagination/Pagination';
@@ -16,6 +16,17 @@ function ContactList() {
   const [filteredContacts, setFilteredContacts] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [focusedSuggestionIndex, setFocusedSuggestionIndex] = useState(-1);
+
+  const ITEMS_PER_PAGE = 5;
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalItems = (filteredContacts || contacts).length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+
+  const [isAscending, setIsAscending] = useState(true);
+  const orderOptions = [
+    { key: 'asc', text: 'Sort A-Z', value: 'asc' },
+    { key: 'desc', text: 'Sort Z-A', value: 'desc' }
+  ];
 
   useEffect(() => {
     // Set 1 second delay
@@ -55,11 +66,6 @@ function ContactList() {
     };
   }, []);
 
-  const ITEMS_PER_PAGE = 5;
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalItems = (filteredContacts || contacts).length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
-
   /* Scroll to top of the page whenever visits a new page */
   useEffect(() => {
     window.scrollTo({
@@ -68,12 +74,30 @@ function ContactList() {
     });
   }, [currentPage]);
 
-  /* Show a Loader when page is loading */
-  if (isLoading) {
-    return (
-      <LoadingComponent content="Loading..." />
-    )
-  }
+  /* Reverse the order of contacts alphabetically when isAscending is changed */
+  useEffect(() => {
+    if (filteredContacts) {
+      const sortedContacts = [...filteredContacts].sort((a, b) =>
+        isAscending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+      );
+      setFilteredContacts(sortedContacts);
+    }
+    if (contacts) {
+      const sorted = [...contacts].sort((a, b) =>
+        isAscending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+      );
+      setContacts(sorted);
+    }
+    setCurrentPage(1);
+  }, [isAscending]);
+
+  /* Return contacts that match or contain the trimmedValue */
+  const filterContacts = (trimmedValue) => {
+    return contacts.filter(contact => {
+      return contact.name.toLowerCase().startsWith(trimmedValue) ||
+             contact.name.split(" ").some(part => part.toLowerCase().startsWith(trimmedValue));
+    });
+  };
 
   /* Search bar autocomplete - when user start typing in the text input, contacts are filtered and
      set suggestions state to filtered contacts */
@@ -83,47 +107,39 @@ function ContactList() {
     const trimmedValue = value.trim().toLowerCase();
 
     if (trimmedValue.length > 0) {
-      const filteredSuggestions = contacts.filter(contact => {
-        return contact.name.toLowerCase().startsWith(trimmedValue) ||
-               contact.name.split(" ").some(part => part.toLowerCase().startsWith(trimmedValue));
-      });
+      const filteredSuggestions = filterContacts(trimmedValue);
       setSuggestions(filteredSuggestions);
     } else {
       setSuggestions([]);
     }
   };
 
+  /* Performs a search using the given string */
+  const selectSuggestion = (name) => {
+    setSearchTerm(name);
+    setLastSearchTerm(name);
+    const filtered = filterContacts(name.toLowerCase());
+    setFilteredContacts(filtered);
+    setCurrentPage(1);
+    setSuggestions([]); // Clear suggestions
+  };
+
   /* When user clicks the search button, if there is text in the input,
      filter the contacts, and set FilteredContacts state to the filtered contacts */
-  const performSearch = () => {
-    const trimmedSearchTerm = searchTerm.trim().toLowerCase();
-    if (trimmedSearchTerm) {
-      const filtered = contacts.filter(contact => {
-        return contact.name.toLowerCase().startsWith(trimmedSearchTerm) ||
-               contact.name.split(" ").some(part => part.toLowerCase().startsWith(trimmedSearchTerm));
-      });
-      setFilteredContacts(filtered);
-      setLastSearchTerm(searchTerm);
-      setSuggestions([]); // Clear suggestions on search
-      setCurrentPage(1);
-    } else {
-      setFilteredContacts(null);
-      setLastSearchTerm('');
-      setCurrentPage(1);
-    }
-  };
-
-  const handleSearchClick = () => performSearch();
-
-  /* When user clicks the reset button, clear the input field,
-     search results, lastSearchTerm, and suggestion contacts */
-  const handleClearClick = () => {
-    setSearchTerm('');
-    setFilteredContacts(null);
-    setLastSearchTerm('');
-    setSuggestions([]);
-    setCurrentPage(1);
-  };
+     const performSearch = () => {
+      const trimmedSearchTerm = searchTerm.trim().toLowerCase();
+      if (trimmedSearchTerm) {
+        const filtered = filterContacts(trimmedSearchTerm);
+        setFilteredContacts(filtered);
+        setLastSearchTerm(searchTerm);
+        setSuggestions([]); // Clear suggestions on search
+        setCurrentPage(1);
+      } else {
+        setFilteredContacts(null);
+        setLastSearchTerm('');
+        setCurrentPage(1);
+      }
+    };
 
   /* Change the index of the suggestion being focused when user uses a keyboard*/
   const handleKeyDown = (event) => {
@@ -156,18 +172,17 @@ function ContactList() {
     setFocusedSuggestionIndex(-1);
   };
 
-  /* Performs a search using the given string */
-  const selectSuggestion = (name) => {
-    setSearchTerm(name);
-    setLastSearchTerm(name);
+  /* When user clicks the search button, calls performSearch method */
+  const handleSearchClick = () => performSearch();
 
-    const filtered = contacts.filter(contact =>
-      contact.name.toLowerCase().startsWith(name.toLowerCase()) ||
-      contact.name.split(" ").some(part => part.toLowerCase().startsWith(name.toLowerCase()))
-    );
-    setFilteredContacts(filtered);
+  /* When user clicks the reset button, clear the input field,
+     search results, lastSearchTerm, and suggestion contacts */
+  const handleClearClick = () => {
+    setSearchTerm('');
+    setFilteredContacts(null);
+    setLastSearchTerm('');
+    setSuggestions([]);
     setCurrentPage(1);
-    setSuggestions([]); // Clear suggestions
   };
 
   /* Store the contacts of the current page to currentContacts */
@@ -183,6 +198,13 @@ function ContactList() {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
+  /* Show a Loader when page is loading */
+  if (isLoading) {
+    return (
+      <LoadingComponent content="Loading..." />
+    )
+  }
+
   return (
     <Container>
       <Grid>
@@ -192,6 +214,13 @@ function ContactList() {
       {filteredContacts !== null && (
         <SearchResultsHeader lastSearchTerm={lastSearchTerm} filteredContacts={filteredContacts} />
       )}
+
+      <Dropdown
+        selection
+        options={orderOptions}
+        defaultValue='asc'
+        onChange={(e, { value }) => setIsAscending(value === 'asc')}
+      />
 
       {currentContacts.map(contact => (
         <ContactListItem key={contact.id} contact={contact} />
