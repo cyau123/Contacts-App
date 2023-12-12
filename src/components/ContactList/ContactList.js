@@ -22,7 +22,6 @@ function ContactList() {
   const totalItems = (filteredContacts || contacts).length;
   const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
 
-  const [isAscending, setIsAscending] = useState(true);
   const orderOptions = [
     { key: 'asc', text: 'Sort A-Z', value: 'asc' },
     { key: 'desc', text: 'Sort Z-A', value: 'desc' }
@@ -73,23 +72,6 @@ function ContactList() {
       behavior: 'smooth',
     });
   }, [currentPage]);
-
-  /* Reverse the order of contacts alphabetically when isAscending is changed */
-  useEffect(() => {
-    if (filteredContacts) {
-      const sortedContacts = [...filteredContacts].sort((a, b) =>
-        isAscending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
-      );
-      setFilteredContacts(sortedContacts);
-    }
-    if (contacts) {
-      const sorted = [...contacts].sort((a, b) =>
-        isAscending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
-      );
-      setContacts(sorted);
-    }
-    setCurrentPage(1);
-  }, [isAscending]);
 
   /* Return contacts that match or contain the trimmedValue */
   const filterContacts = (trimmedValue) => {
@@ -198,6 +180,29 @@ function ContactList() {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
+  /* Change the order of the contacts if a different sort method is chosen in the dropdown*/
+  const handleDropdown = (e, { value }) => {
+    // a boolean which will be true if the value is 'asc'
+    const ascending = value === 'asc';
+
+    // Sort both contacts and filteredContacts
+    const sortContacts = (contactsArray) => {
+      return [...contactsArray].sort((a, b) =>
+        ascending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+      );
+    };
+
+    if (contacts) {
+      setContacts(sortContacts(contacts));
+    }
+
+    if (filteredContacts) {
+      setFilteredContacts(sortContacts(filteredContacts));
+    }
+
+    setCurrentPage(1);
+  }
+
   /* Show a Loader when page is loading */
   if (isLoading) {
     return (
@@ -219,7 +224,7 @@ function ContactList() {
         selection
         options={orderOptions}
         defaultValue='asc'
-        onChange={(e, { value }) => setIsAscending(value === 'asc')}
+        onChange={handleDropdown}
       />
 
       {currentContacts.map(contact => (
